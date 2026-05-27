@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd storm-kings && npm run build",
+  "outputDirectory": "storm-kings/.next",
+  "installCommand": "cd storm-kings && npm install",
+  "framework": "nextjs",
+  "devCommand": "cd storm-kings && npm run dev"
+}

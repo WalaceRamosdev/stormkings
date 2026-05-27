@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  CAPTAIN
+}
+
+enum RankTier {
+  BRONZE
+  SILVER
+  GOLD
+  ELITE
+  STORM_ELITE
+  KINGS_DIVISION
+}
+
+enum MatchStatus {
+  PENDING
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id         String       @id @default(cuid())
+  discordId  String       @unique
+  username   String
+  avatar     String?
+  nickname   String
+  role       Role         @default(USER)
+  rank       RankTier     @default(BRONZE)
+  stats      PlayerStats?
+  teams      TeamMember[]
+  createdAt  DateTime     @default(now())
+}
+
+model PlayerStats {
+  id            String @id @default(cuid())
+  userId        String @unique
+  user          User   @relation(fields: [userId], references: [id])
+  kdRatio       Float  @default(0.0)
+  winRate       Float  @default(0.0)
+  matchesPlayed Int    @default(0)
+  mvpCount      Int    @default(0)
+  trophies      Int    @default(0)
+}
+
+model Team {
+  id           String           @id @default(cuid())
+  name         String
+  logo         String?
+  description  String?
+  captainId    String?
+  wins         Int              @default(0)
+  losses       Int              @default(0)
+  members      TeamMember[]
+  tournaments  TournamentTeam[]
+  groupEntries GroupEntry[]
+  createdAt    DateTime         @default(now())
+}
+
+model TeamMember {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  teamId  String
+  team    Team   @relation(fields: [teamId], references: [id])
+  role    String @default("Member")
+
+  @@unique([userId, teamId])
+}
+
+model Tournament {
+  id         String           @id @default(cuid())
+  name       String
+  banner     String?
+  status     String           @default("UPCOMING")
+  prize      String?
+  startDate  DateTime
+  endDate    DateTime?
+  format     String
+  groups     Group[]
+  matches    Match[]
+  teams      TournamentTeam[]
+}
+
+model TournamentTeam {
+  id            String     @id @default(cuid())
+  tournamentId  String
+  tournament    Tournament @relation(fields: [tournamentId], references: [id])
+  teamId        String
+  team          Team       @relation(fields: [teamId], references: [id])
+  seed          Int?
+}
+
+model Group {
+  id            String       @id @default(cuid())
+  name          String
+  tournamentId  String
+  tournament    Tournament   @relation(fields: [tournamentId], references: [id])
+  entries       GroupEntry[]
+  matches       Match[]
+}
+
+model GroupEntry {
+  id         String @id @default(cuid())
+  groupId    String
+  group      Group  @relation(fields: [groupId], references: [id])
+  teamId     String
+  team       Team   @relation(fields: [teamId], references: [id])
+  played     Int    @default(0)
+  won        Int    @default(0)
+  lost       Int    @default(0)
+  points     Int    @default(0)
+  roundDiff  Int    @default(0)
+}
+
+model Match {
+  id            String       @id @default(cuid())
+  tournamentId  String
+  tournament    Tournament   @relation(fields: [tournamentId], references: [id])
+  groupId       String?
+  group         Group?       @relation(fields: [groupId], references: [id])
+  teamAId       String
+  teamBId       String
+  scoreA        Int          @default(0)
+  scoreB        Int          @default(0)
+  status        MatchStatus  @default(PENDING)
+  round         String?
+  winnerId      String?
+  startTime     DateTime?
+}
+
+model News {
+  id         String   @id @default(cuid())
+  title      String
+  content    String   @db.Text
+  imageUrl   String?
+  authorId   String
+  published  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}

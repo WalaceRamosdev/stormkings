@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-storm-950 text-storm-silver antialiased selection:bg-storm-blue selection:text-storm-950;
+
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.05), transparent 50%),
+      linear-gradient(to bottom, #02040a, #050a14);
+
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow:
+      0 0 10px rgba(0, 240, 255, 0.5),
+      0 0 20px rgba(0, 240, 255, 0.3);
+  }
+
+  .box-glow {
+    box-shadow:
+      0 0 15px rgba(0, 240, 255, 0.1),
+      inset 0 0 10px rgba(0, 240, 255, 0.05);
+  }
+
+  .glass-panel {
+    @apply bg-storm-900/60 backdrop-blur-md border border-white/10;
+  }
+}
